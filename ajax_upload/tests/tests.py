@@ -10,12 +10,10 @@ from django.utils.translation import ugettext as _
 from ajax_upload.models import UploadedFile
 from ajax_upload.widgets import AjaxUploadException
 
-
 TEST_FILEPATH = os.path.dirname(__file__) + '/files/test.png'
 
 
 class UploaderTestHelper(object):
-
     def tearDown(self):
         # Delete all uploaded files created during testing
         for up in UploadedFile.objects.all():
@@ -31,7 +29,6 @@ class UploaderTestHelper(object):
 
 
 class AjaxUploadTests(UploaderTestHelper, TestCase):
-
     def test_upload_file_submission_saves_file_with_different_name_and_returns_json_data(self):
         post_data = {
             'file': open(TEST_FILEPATH)

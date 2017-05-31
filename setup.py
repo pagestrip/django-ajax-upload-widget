@@ -2,7 +2,6 @@ from setuptools import setup, find_packages
 
 import ajax_upload
 
-
 setup(
     name='django-ajax-upload-widget',
     packages=find_packages(exclude=['example']),

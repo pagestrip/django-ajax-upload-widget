@@ -20,4 +20,5 @@ class UploadedFile(models.Model):
         super(UploadedFile, self).delete(*args, **kwargs)
         if self.file:
             self.file.delete()
+
     delete.alters_data = True

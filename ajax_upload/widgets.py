@@ -7,7 +7,6 @@ from django.core.urlresolvers import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-
 from ajax_upload.models import UploadedFile
 
 
