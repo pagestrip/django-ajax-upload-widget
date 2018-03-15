@@ -3,7 +3,7 @@ from urllib.parse import unquote
 from django import forms
 from django.conf import settings
 from django.core.files import File
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
@@ -26,7 +26,8 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
             filename = ''
         attrs.update({
             'class': attrs.get('class', '') + 'ajax-upload',
-            'data-filename': filename,  # This is so the javascript can get the actual value
+            'data-filename':
+            filename,  # This is so the javascript can get the actual value
             'data-required': self.is_required or '',
             'data-upload-url': reverse('ajax-upload')
         })
@@ -35,7 +36,8 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
 
     def value_from_datadict(self, data, files, name):
         # If a file was uploaded or the clear checkbox was checked, use that.
-        file = super(AjaxClearableFileInput, self).value_from_datadict(data, files, name)
+        file = super(AjaxClearableFileInput, self).value_from_datadict(
+            data, files, name)
         if file is not None:  # super class may return a file object, False, or None
             return file  # Default behaviour
         elif name in data:  # This means a file path was specified in the POST field
@@ -45,14 +47,17 @@ class AjaxClearableFileInput(forms.ClearableFileInput):
             elif file_path.startswith(settings.MEDIA_URL):
                 # Strip and media url to determine the path relative to media url base
                 relative_path = file_path[len(settings.MEDIA_URL):]
-                relative_path = unquote(relative_path.encode('utf8')).decode('utf8')
+                relative_path = unquote(
+                    relative_path.encode('utf8')).decode('utf8')
                 try:
-                    uploaded_file = UploadedFile.objects.get(file=relative_path)
+                    uploaded_file = UploadedFile.objects.get(
+                        file=relative_path)
                 except UploadedFile.DoesNotExist:
                     # Leave the file unchanged (it could be the original file path)
                     return None
                 else:
                     return File(uploaded_file.file)
             else:
-                raise AjaxUploadException('%s %s' % (_('File path not allowed:'), file_path))
+                raise AjaxUploadException(
+                    '%s %s' % (_('File path not allowed:'), file_path))
         return None

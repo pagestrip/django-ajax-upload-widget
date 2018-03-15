@@ -3,7 +3,7 @@ import os
 import unittest
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.test import TestCase
 from django.utils.translation import ugettext as _
 
@@ -21,18 +21,15 @@ class UploaderTestHelper(object):
                 up.file.delete()
 
     def create_uploaded_file(self, **kwargs):
-        defaults = {
-            'file': 'test.png'
-        }
+        defaults = {'file': 'test.png'}
         defaults.update(kwargs)
         return UploadedFile.objects.create(**defaults)
 
 
 class AjaxUploadTests(UploaderTestHelper, TestCase):
-    def test_upload_file_submission_saves_file_with_different_name_and_returns_json_data(self):
-        post_data = {
-            'file': open(TEST_FILEPATH)
-        }
+    def test_upload_file_submission_saves_file_with_different_name_and_returns_json_data(
+            self):
+        post_data = {'file': open(TEST_FILEPATH)}
         response = self.client.post(reverse('ajax-upload'), post_data)
         self.assertEqual(response.status_code, 200)
         json_data = json.loads(response.content)
@@ -43,14 +40,13 @@ class AjaxUploadTests(UploaderTestHelper, TestCase):
         self.assertTrue(len(os.path.basename(uploaded_file.file.name)) > 16)
 
     def test_upload_file_submission_missing_file_returns_error(self):
-        post_data = {
-            'file': ''
-        }
+        post_data = {'file': ''}
         response = self.client.post(reverse('ajax-upload'), post_data)
         self.assertEqual(response.status_code, 400)
         json_data = json.loads(response.content)
         self.assertTrue('errors' in json_data)
-        self.assertEqual(json_data['errors']['file'][0], _('This field is required.'))
+        self.assertEqual(json_data['errors']['file'][0],
+                         _('This field is required.'))
 
     def test_upload_file_get_request_returns_405(self):
         response = self.client.get(reverse('ajax-upload'))
@@ -62,9 +58,7 @@ class AjaxFileInputTests(UploaderTestHelper, TestCase):
 
     def test_submit_form_with_uploaded_file_path(self):
         # First ajax upload the file to the uploader
-        post_data = {
-            'file': open(TEST_FILEPATH)
-        }
+        post_data = {'file': open(TEST_FILEPATH)}
         response = self.client.post(reverse('ajax-upload'), post_data)
         self.assertEqual(response.status_code, 200)
         json_data = json.loads(response.content)
@@ -74,19 +68,19 @@ class AjaxFileInputTests(UploaderTestHelper, TestCase):
         # Now submit the original form with the path of the uploaded file
         post_data = {
             'my_file': json_data['path'],
-            'my_image': json_data['path']  # We're testing both AjaxFileField and AjaxImageField
+            'my_image': json_data[
+                'path']  # We're testing both AjaxFileField and AjaxImageField
         }
         response = self.client.post(reverse('ajax-uploads-test'), post_data)
         self.assertEqual(response.status_code, 200)
         parsed = json.loads(response.content)
-        self.assertEqual(parsed['uploaded_file_name'], json_data['path'].replace(settings.MEDIA_URL, ''))
-        self.assertEqual(parsed['uploaded_image_name'], json_data['path'].replace(settings.MEDIA_URL, ''))
+        self.assertEqual(parsed['uploaded_file_name'],
+                         json_data['path'].replace(settings.MEDIA_URL, ''))
+        self.assertEqual(parsed['uploaded_image_name'],
+                         json_data['path'].replace(settings.MEDIA_URL, ''))
 
     def test_submit_form_with_empty_path_clears_existing_file(self):
-        post_data = {
-            'my_file': '',
-            'my_image': ''
-        }
+        post_data = {'my_file': '', 'my_image': ''}
         response = self.client.post(reverse('ajax-uploads-test'), post_data)
         self.assertEqual(response.status_code, 200)
         parsed = json.loads(response.content)
@@ -106,12 +100,15 @@ class AjaxFileInputTests(UploaderTestHelper, TestCase):
         else:
             self.fail()
 
-    def test_submit_form_with_internal_file_path_ignores_it_and_retains_original_value(self):
+    def test_submit_form_with_internal_file_path_ignores_it_and_retains_original_value(
+            self):
         # In this scenario, we're simulating the submission of an form that had
         # an existing file specified and didn't change/ajax upload it (eg. an update form).
         post_data = {
-            'my_file': '%ssome/INVALID-path/file.txt' % settings.MEDIA_URL,  # invalid path
-            'my_image': '%ssome/path/image.png' % settings.MEDIA_URL  # valid path
+            'my_file': '%ssome/INVALID-path/file.txt' %
+            settings.MEDIA_URL,  # invalid path
+            'my_image':
+            '%ssome/path/image.png' % settings.MEDIA_URL  # valid path
             # We ignore BOTH valid and invalid paths to prevent the user from setting
             # the value to a file that they did not upload
         }

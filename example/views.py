@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import get_object_or_404, render, redirect
 
 from example.forms import ProductForm
@@ -12,14 +12,18 @@ def add_edit_product(request, product_id=None):
         product = None
 
     if request.method == 'POST':
-        form = ProductForm(instance=product, data=request.POST, files=request.FILES)
+        form = ProductForm(
+            instance=product, data=request.POST, files=request.FILES)
         if form.is_valid():
             product = form.save()
             return redirect(reverse('example-edit-product', args=[product.id]))
     else:
         form = ProductForm(instance=product)
 
-    return render(request, 'example/product.html', dictionary={
-        'form': form,
-        'product': product,
-    })
+    return render(
+        request,
+        'example/product.html',
+        dictionary={
+            'form': form,
+            'product': product,
+        })
